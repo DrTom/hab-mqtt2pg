@@ -1,0 +1,17 @@
+[Unit]
+Description=MQTT2PG Service
+After=syslog.target
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory={{workingdir}}
+User={{user}}
+Group={{user}}
+Environment=MQTT_URL=mqtt://localhost
+Environment=PG_URL=postgresql://{{user}}:{{pg_password}}@localhost/hab
+ExecStart={{workingdir}}/mqtt2pg run
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+name: HAB/mqtt2pg
+windows:
+  2: 
+    name: run
+    command: |
+      export PATH="./node_modules/.bin:${PATH}"
+      export MQTT_URL=mqtt://hab
+      # export PG_URL=postgresql://mqtt2pg:SECRET@hab:5432/hab
+      export PG_URL=postgresql://localhost/hab
+      # node mqtt2pg -d run
+      #
+  3: 
+    name: repl
+    command: |
+      sleep 30
+      export PATH="./node_modules/.bin:${PATH}"
+      shadow-cljs cljs-repl application
+  7:
+    name: build
+    command: |
+      export PATH="./node_modules/.bin:${PATH}"
+      # shadow-cljs release application 
+      shadow-cljs watch application
+  8: 
+    name: deploy
+    command: |
+      # ansible-playbook -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml -l hab deploy/deploy_play.yml

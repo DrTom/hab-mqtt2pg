@@ -1,0 +1,3 @@
+workingdir: /opt/mqtt2pg
+clean_workingdir: false
+user: mqtt2pg
