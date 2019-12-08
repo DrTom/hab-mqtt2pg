@@ -5,7 +5,9 @@
 
 (defn client [opts on-message]
   (let [mqtt-url (:mqtt-url opts)
-        client (mqtt/connect mqtt-url)]
+        options {:username (:mqtt-user opts)
+                 :password (:mqtt-password opts)}
+        client (mqtt/connect mqtt-url (clj->js options))]
     (.on client "connect" 
          (fn []
            (println "client connected to " mqtt-url)

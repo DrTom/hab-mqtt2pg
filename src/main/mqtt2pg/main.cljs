@@ -10,8 +10,14 @@
 (def cli-options
   [["-h" "--help"]
    ["-d" "--debug"]
+   ["-l" "--log-level LOG_LEVEL"
+    :default "info"] 
    [nil "--mqtt-url MQTT_URL" "e.g. `MQTT_URL=mqtt://test.mosquitto.org`"
     :default js/process.env.MQTT_URL]
+   [nil "--mqtt-user MQTT_USER" "user(name) for connecting to the mqtt server"
+    :default js/process.env.MQTT_USER]
+   [nil "--mqtt-password MQTT_PASSWORD" "password for connecting to the mqtt server"
+    :default js/process.env.MQTT_PASSWORD]
    [nil "--pg-url PG_URL" 
     (str "e.g. `PG_URL=postgresql://USER:SECRET@database.server.com:5432/mydb`;"
          " this can be left unset or blank in which case stardard PG envars will be tried")
@@ -40,9 +46,7 @@
         (cli/parse-opts args cli-options :in-order true)
         pass-on-args (->> [options (rest arguments)]
                           flatten (into []))]
-    (if (:debug options) 
-      (timbre/set-level! :debug)
-      (timbre/set-level! :warn))
+    (timbre/set-level! (-> options :log-level keyword))
     (cond
       (:help options) (println (main-usage summary {:args args :options options}))
       :else (case (-> arguments first keyword)

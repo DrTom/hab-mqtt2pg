@@ -1,15 +1,16 @@
-name: HAB/mqtt2pg
+name: HA/mqtt2pg
 windows:
-  2: 
+  2:
     name: run
     command: |
       export PATH="./node_modules/.bin:${PATH}"
       export MQTT_URL=mqtt://hab
       # export PG_URL=postgresql://mqtt2pg:SECRET@hab:5432/hab
+      export MQTT_USER='' MQTT_PASSWORD=''
       export PG_URL=postgresql://localhost/hab
       # node mqtt2pg -d run
       #
-  3: 
+  3:
     name: repl
     command: |
       sleep 30
@@ -19,9 +20,11 @@ windows:
     name: build
     command: |
       export PATH="./node_modules/.bin:${PATH}"
-      # shadow-cljs release application 
+      # shadow-cljs release application
       shadow-cljs watch application
-  8: 
+  8:
     name: deploy
     command: |
-      # ansible-playbook -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml -l hab deploy/deploy_play.yml
+      source py3-venv/bin/activate
+      # export PG_PASSWORD='' MQTT_PASSWORD=''
+      # ansible-playbook -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml -l hab deploy/deploy_play.yml -e "pg_password=$PG_PASSWORD" -e "mqtt_password=$MQTT_PASSWORD"

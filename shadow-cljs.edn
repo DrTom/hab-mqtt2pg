@@ -6,8 +6,10 @@
 
  :dependencies
  [
-  [org.clojure/tools.cli "0.4.2"]
+  [cljs-await "1.0.2"]
   [com.taoensso/timbre "4.10.0"]
+  [funcool/cuerdas "2.2.0"]
+  [org.clojure/tools.cli "0.4.2"]
   ]
 
  :builds
