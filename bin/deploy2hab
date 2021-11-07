@@ -1,0 +1,14 @@
+##!/bin/bash
+set -eux
+
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+cd $PROJECT_DIR
+
+./bin/ansible-playbook \
+  -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml \
+  -l hab \
+  deploy/deploy_play.yml \
+  -e "pg_password=$(bw get password mqtt2pg@postgresql@hab.home)" \
+  -e "mqtt_password=$(bw get password mqtt2pg@mosquitto@hab.home)"
+
+# vim: syntax=sh

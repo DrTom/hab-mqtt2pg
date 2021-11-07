@@ -1,0 +1,13 @@
+; logging file for development
+
+{
+ ; min-level oder matters: it is greedy!
+ :min-level [[#{"mqtt2pg.mqtt"
+                "mqtt2pg.message-handlers.generic-state"
+                "mqtt2pg.message-handlers.hue"
+                } :debug]
+             [#{"mqtt2pg.*"} :info]
+             [#{"*"} :warn]]
+ ; set log-level to nil, otherwise it will take precedence over min-level
+ :log-level nil
+ }

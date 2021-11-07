@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "shadow-cljs": "2.8.36"
+    "npm-check-updates": "^11.8.5",
+    "shadow-cljs": "^2.15.12"
   },
   "dependencies": {
-    "mqtt": "^2.18.8",
-    "pg": "^7.11.0"
+    "async-mqtt": "^2.6.1",
+    "mqtt": "^4.2.8",
+    "pg": "^8.7.1"
   }
 }

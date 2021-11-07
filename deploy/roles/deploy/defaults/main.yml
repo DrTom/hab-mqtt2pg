@@ -1,3 +1,4 @@
-workingdir: /opt/mqtt2pg
+workingdir: /opt/mqtt2pg2
 clean_workingdir: false
 user: mqtt2pg
+debian_nodejs_repo_version: "16.x"

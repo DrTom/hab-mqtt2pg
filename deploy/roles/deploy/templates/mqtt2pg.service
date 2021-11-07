@@ -11,11 +11,17 @@ RestartSec=60
 WorkingDirectory={{workingdir}}
 User={{user}}
 Group={{user}}
+Environment=LOGGING_CONFIG_FILE={{workingdir}}/log-conf.edn
 Environment=MQTT_URL=mqtt://localhost
-Environment=MQTT_USER={{user}}
+Environment=MQTT_USER=mqtt2pg
 Environment=MQTT_PASSWORD={{mqtt_password}}
-Environment=PG_URL=postgresql://{{user}}:{{pg_password}}@localhost/hab
+Environment=PGDATABASE=hab
+Environment=PGUSER=mqtt2pg
+Environment=PGPASSWORD={{pg_password}}
+# Environment=PG_URL=postgresql://{{user}}:{{pg_password}}@localhost/hab
 ExecStart={{workingdir}}/mqtt2pg run
 
 [Install]
 WantedBy=multi-user.target
+
+# vim: syntax=sh

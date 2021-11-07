@@ -1,0 +1,10 @@
+- name: build
+  delegate_to: localhost
+  args:
+    executable: /bin/bash
+  shell: |
+    #!/usr/bin/env bash
+    set -euxo
+    cd {{playbook_dir}}/..
+    ./bin/build
+

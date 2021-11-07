@@ -1,4 +1,4 @@
-(ns mqtt2pg.utils
+(ns mqtt2pg.utils.core
   (:refer-clojure :exclude [str keyword])
   )
 
@@ -39,7 +39,7 @@
   "Pipes v through presence returns the result of that iff it is not nil.
   Throws an IllegalStateException otherwise. "
   (or (-> v presence)
-      (throw 
-        (new 
+      (throw
+        (new
           js/Error
           "The argument must neither be nil, nor an empty string nor an empty collection."))))

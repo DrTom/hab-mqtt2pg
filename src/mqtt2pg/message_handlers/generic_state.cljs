@@ -1,8 +1,8 @@
 (ns mqtt2pg.message-handlers.generic-state
   (:require
     [mqtt2pg.config :as config]
-    [mqtt2pg.utils :refer [presence]]
-    [mqtt2pg.pg :as pg]
+    [mqtt2pg.utils.core :refer [presence]]
+    [mqtt2pg.db :as db]
     [clojure.string :as s]
     [taoensso.timbre :as timbre :refer-macros [log spy info debug warn error]]))
 
@@ -10,9 +10,12 @@
 (def last-persisted-values* (atom {}))
 
 (defn parse [message]
-  (try 
-    (.parse js/JSON message)
-    (catch :default _
+  (try
+    (->> message
+         js/JSON.parse
+         js->clj)
+    (catch js/Object e
+      (debug "failed to parse message " message e)
       message)))
 
 (defn on-message [topic message]
@@ -24,18 +27,19 @@
                 (string? value) "text_events"
                 :else nil)]
     (if-not table
-      (error "Failed to parse message " message " on " topic)
+      (error "Failed to assign " table " on " topic " for " message)
       (if (= value (get @last-persisted-values* topic))
         (debug "skip persisting same value" topic value)
         ; TODO use connection to persist not just the pool itself
-        (.query @pg/pool* (clj->js 
+        (.query @db/pool* (clj->js
                             {:name table
                              :text (str "INSERT INTO " table " (topic, value) "
                                         "VALUES ($1, $2)")
-                             :values [topic, value]}) 
-                (fn [err, res] 
-                  (if err 
+                             :values [topic, value]})
+                (fn [err, res]
+                  (if err
                     (error err)
                     (swap! last-persisted-values* assoc topic value))))))))
+
 
 

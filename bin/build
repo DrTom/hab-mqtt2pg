@@ -1,0 +1,13 @@
+#!/bin/bash
+set -eux
+
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+cd $PROJECT_DIR
+
+rm -f mqtt2pg
+rm -rf target
+touch mqtt2pg
+chmod a+x mqtt2pg
+npx shadow-cljs release service
+
+# vim: syntax=sh

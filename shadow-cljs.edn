@@ -1,19 +1,20 @@
 ;; shadow-cljs configuration
 {:source-paths
- ["src/dev"
-  "src/main"
-  "src/test"]
-
+ ["src"]
  :dependencies
  [
-  [cljs-await "1.0.2"]
-  [com.taoensso/timbre "4.10.0"]
-  [funcool/cuerdas "2.2.0"]
-  [org.clojure/tools.cli "0.4.2"]
+  [com.taoensso/timbre "5.1.2"]
+  [funcool/cuerdas "2021.05.29-0"]
+  [org.clojars.akiel/async-error "0.3"]
+  [org.clojure/tools.cli "1.0.206"]
   ]
 
  :builds
- {:application
-  {:target :node-script
-   :main mqtt2pg.main/main
-   :output-to "mqtt2pg"}}}
+ {:service
+  {:compiler-options
+   {:infer-externs :auto
+    :optimizations :simple}
+   :main mqtt2pg.main/-main
+   :output-to "mqtt2pg"
+   :target :node-script
+   }}}

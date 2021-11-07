@@ -3,25 +3,25 @@ windows:
   2:
     name: run
     command: |
-      export PATH="./node_modules/.bin:${PATH}"
-      export MQTT_URL=mqtt://hab
+      # export MQTT_URL=mqtt://hab
       # export PG_URL=postgresql://mqtt2pg:SECRET@hab:5432/hab
       export MQTT_USER='' MQTT_PASSWORD=''
-      export PG_URL=postgresql://localhost/hab
-      # node mqtt2pg -d run
+      export PGDATABASE=hab
+      # export PG_URL=postgresql://localhost/hab
+      node mqtt2pg run --logging-config-file dev-log-conf.edn
       #
   3:
     name: repl
     command: |
       sleep 30
       export PATH="./node_modules/.bin:${PATH}"
-      shadow-cljs cljs-repl application
+      npx shadow-cljs cljs-repl service
   7:
     name: build
     command: |
       export PATH="./node_modules/.bin:${PATH}"
       # shadow-cljs release application
-      shadow-cljs watch application
+      npx shadow-cljs watch service
   8:
     name: deploy
     command: |

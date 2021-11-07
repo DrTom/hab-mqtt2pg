@@ -1,0 +1,68 @@
+- name: clean workingdir
+  file:
+    path: "{{workingdir}}"
+    state: absent
+  when: clean_workingdir
+
+- name: setup workingdir
+  file:
+    path: "{{workingdir}}"
+    state: directory
+    recurse: yes
+    owner: mqtt2pg
+
+- name: copy mqtt2pg
+  copy:
+    src: '{{playbook_dir}}/../mqtt2pg'
+    dest: '{{workingdir}}/mqtt2pg'
+    owner: '{{user}}'
+    group: '{{user}}'
+    mode: u=rwx,g=rx,o=rx
+
+- name: copy files
+  copy:
+    src: '{{playbook_dir}}/../{{item}}'
+    dest: '{{workingdir}}/{{item}}'
+    owner: '{{user}}'
+    mode: u=rw,go=r
+  with_items:
+  - src/
+  - package-lock.json
+  - package.json
+  - shadow-cljs.edn
+  tags: [copy]
+
+- name: node_modules - npm ci
+  become_user: '{{user}}'
+  become: yes
+  become_flags: -i
+  become_method: sudo
+  shell: |
+    cd {{workingdir}}
+    npm ci
+  args:
+    executable: /bin/bash
+
+# if we ever rather build on the server:
+# (note: we need to copy /bin/build too)
+#- name: build application
+#  become_user: "{{user}}"
+#  become: yes
+#  become_flags: -i
+#  become_method: sudo
+#  shell: |
+#    #!/bin/bash
+#    set -euxo
+#    cd {{workingdir}}
+#    ./bin/build
+#
+- name: install log conf file
+  template:
+    src:  log-conf.edn
+    dest: '{{workingdir}}/log-conf.edn'
+    owner: '{{user}}'
+    group: '{{user}}'
+    mode: 0644
+
+
+

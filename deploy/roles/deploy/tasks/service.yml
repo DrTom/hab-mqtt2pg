@@ -1,0 +1,16 @@
+- name: install systemd service files
+  template:
+    src: mqtt2pg.service
+    dest: '/etc/systemd/system/mqtt2pg2.service'
+    mode: 0644
+
+- name: reload systemctl
+  command: systemctl daemon-reload
+  changed_when: false
+
+- name: resetart service
+  service:
+    name: mqtt2pg2.service
+    state: restarted
+    enabled: yes
+
