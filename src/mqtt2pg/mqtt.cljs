@@ -11,6 +11,14 @@
 
 (defonce client* (atom nil))
 
+(def cli-options
+  [[nil "--mqtt-url MQTT_URL" "e.g. `MQTT_URL=mqtt://test.mosquitto.org`"
+    :default (or js/process.env.MQTT_URL "tcp://localhost:1883")]
+   [nil "--mqtt-user MQTT_USER" "user(name) for connecting to the mqtt server"
+    :default js/process.env.MQTT_USER]
+   [nil "--mqtt-password MQTT_PASSWORD" "password for connecting to the mqtt server"
+    :default js/process.env.MQTT_PASSWORD]])
+
 (defn deinit []
   (when-let [client @client*]
     (debug "MQTT deinitializing " client)

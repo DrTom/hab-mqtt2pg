@@ -1,62 +1,78 @@
 (ns mqtt2pg.message-handlers.shelly
   (:require
-    [mqtt2pg.config :as config]
-    [mqtt2pg.utils.core :refer [presence]]
-    [mqtt2pg.db :as db]
+    [applied-science.js-interop :as j]
+    [cljs.core.async :as async :refer [go <! >! put! chan timeout]]
+    [cljs.core.async.interop :refer [<p!]]
     [clojure.string :as s]
+    [cuerdas.core :as string :refer [lower]]
+    [mqtt2pg.config :as config]
+    [mqtt2pg.db.insert :as db-insert :refer [insert*]]
+    [mqtt2pg.db.main :as db]
+    [mqtt2pg.utils.async :refer-macros [<? go-try-ch]]
+    [mqtt2pg.utils.core :refer [presence]]
     [taoensso.timbre :as timbre :refer-macros [log spy info debug warn error]]))
 
-(def devices* (atom nil))
 
-(defn state-pattern [device]
-  (re-pattern
-    (str "^shellies/" (:type device) "-" (:id device) "/roller/0/(.+)$")))
-
-(defn name-device [topic]
-  (reduce (fn [t device]
-            (s/replace t (state-pattern device) (str (:name device) "/$1"))
-            ) topic @devices*))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defn topicmapper [topic]
-  (-> topic
-      (s/replace #"^(.*)/roller/0$" "$1/roller/0/action")
-      (name-device)))
+(def ROLLERS-POSITION-UPDATE-STATEMENT
+  {:name "update-roller-position"
+   :text "UPDATE rollers SET position = $1 WHERE device_id = $2 RETURNING *"})
 
-(def last-persisted-values* (atom {}))
+(defn update-roller-position [shelly-id value]
+  (go (try (let [rows (-> ROLLERS-POSITION-UPDATE-STATEMENT
+                          (assoc :values [value shelly-id])
+                          db/exec* <?)]
+             (if (empty? rows)
+               (warn "roller not updated, missing shelly-id: " shelly-id)
+               (debug "updated " rows)))
+           (catch js/Error e (error e)))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn dispatch-shellyswitch25 [shelly-id path topic message]
+  (go (try (case path
+             "roller/0/pos" (let [v (js/parseInt message)]
+                              (update-roller-position shelly-id v)
+                              (<? (insert* topic v)))
+             ("temperature"
+               "voltage") (<? (insert*
+                                topic
+                                (-> message js/parseFloat js/Math.round)))
+             ("input/0"
+               "input/1"
+               "overtemperature") (<? (insert* topic (= "1" message)))
+             ("roller/0/stop_reason"
+              "temperature_status") (<? (insert* topic (lower message)))
+             ("relay/energy"
+               "relay/power"
+               "roller/0" ; start|stop
+               "roller/0/energy"
+               "roller/0/power"
+                ; normal|...
+               "temperature_f") (debug "ignoring:"
+                                       {:path path :message message})
+             (warn "TODO shellyswitch25 " {:path path :message message}))
+
+           (catch js/Error e
+             (warn (ex-message e) [topic message])))))
+
 
 (defn on-message [topic message]
   (debug 'on-message {:topic topic :message message})
-  (let [db-topic (topicmapper topic)
-        event (clojure.string/replace-first db-topic #"^(.*)/" "")
-        [table, value] (case event
-                         ("pos" "power" "energy") ["number_events" (js/parseFloat message)]
-                         "action" ["text_events", message]
-                         [nil, nil])]
-    (if-not table
-      (warn "unpersisted message" {:table table :value value :event event :db-topic db-topic :topic topic :message message})
-      (if (= value (get @last-persisted-values* db-topic))
-        (info "skip persisting same value" db-topic value)
-        (.query @db/pool* (clj->js
-                            {:name table
-                             :text (str "INSERT INTO " table " (topic, value) "
-                                        "VALUES ($1, $2)")
-                             :values [db-topic, value]})
-                (fn [err, res]
-                  (if err
-                    (error err)
-                    (swap! last-persisted-values* assoc db-topic value))))))))
+  (try
+    (let [[_ shellytype
+           shelly-id path] (re-find
+                             #"shellies/([a-zA-Z0-9]+)-([a-zA-Z0-9]+)/(.*)"
+                             topic)]
+      (case shellytype
+        "shellyswitch25" (dispatch-shellyswitch25 shelly-id path topic message)
+        (warn "TODO shellytype" shellytype)))
+    (catch js/Error e
+      (error e))))
 
-(defn read-devices []
-  (.query @db/pool* (clj->js {:text "SELECT * FROM devices"  ;WHERE type = 'shellyswitch25'
-                              :rowMode 'array'})
-          (fn [err,res]
-            (reset! devices* (some->> res .-rows seq
-                                      (map js->clj)
-                                      (map clojure.walk/keywordize-keys)
-                                      doall))
-            (info "updated devices" @devices*)))
-  (js/setTimeout read-devices (* 60 1000)))
+(defn init [])
 
-(defn init []
-  (read-devices))

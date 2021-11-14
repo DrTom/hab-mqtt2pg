@@ -20,18 +20,31 @@ See also `.mux.yml`.
 
 Continuous build:
 
-    shadow-cljs watch application
+    ./bin/watch
 
 
 REPL
 
-    ./node_modules/.bin/shadow-cljs cljs-repl application
+    npx shadow-cljs cljs-repl mqtt2pg
 
 Run
 
-    node mqtt2pg -h
+    ./mqtt2pg run --logging-config-file dev-log-conf.edn
+
+### Vim Fireplace
+
+Connect REPL from within a `*cljs` file:
+
+    :CljEval (shadow/repl :mqtt2pg)
 
 
+quit
+
+    :cljs/quit
+
+See also
+
+https://shadow-cljs.github.io/docs/UsersGuide.html#_connecting_fireplace_vim_to_repl_server
 
 ### Upgrade NPM Dependencies
 
@@ -43,10 +56,8 @@ Deployment
 ----------
 
 ```sh
-ansible-playbook \
-  -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml -l hab deploy/deploy_play.yml \
-  -e pg_password=REPLACE_ME \
-  -e '{"clean_workingdir":False}'
+bw unlock
+./bin/deploy2hab
 ```
 
 
@@ -75,6 +86,7 @@ mosquitto_sub -v -h 127.0.0.1 -p 1883 -t '#'
     SELECT DISTINCT ON (topic) number_events.topic, time, value FROM number_events ORDER BY topic, time DESC;
 
     SELECT count(*) FROM number_events GROUP BY topic ORDER BY topic ;
+
 
 
 

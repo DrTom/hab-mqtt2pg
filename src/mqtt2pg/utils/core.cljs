@@ -1,6 +1,5 @@
 (ns mqtt2pg.utils.core
-  (:refer-clojure :exclude [str keyword])
-  )
+  (:refer-clojure :exclude [str keyword]))
 
 (defn str
   "Like clojure.core/str but maps keywords to strings without preceding colon."

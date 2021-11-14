@@ -8,7 +8,8 @@ windows:
       export MQTT_USER='' MQTT_PASSWORD=''
       export PGDATABASE=hab
       # export PG_URL=postgresql://localhost/hab
-      node mqtt2pg run --logging-config-file dev-log-conf.edn
+      sleep 30
+      ./mqtt2pg run --logging-config-file dev-log-conf.edn
       #
   3:
     name: repl
@@ -17,14 +18,12 @@ windows:
       export PATH="./node_modules/.bin:${PATH}"
       npx shadow-cljs cljs-repl service
   7:
-    name: build
+    name: build|watch
     command: |
-      export PATH="./node_modules/.bin:${PATH}"
-      # shadow-cljs release application
-      npx shadow-cljs watch service
+      # ./bin/build shadow-cljs release application
+      ./bin/watch
   8:
     name: deploy
     command: |
-      source py3-venv/bin/activate
-      # export PG_PASSWORD='' MQTT_PASSWORD=''
-      # ansible-playbook -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml -l hab deploy/deploy_play.yml -e "pg_password=$PG_PASSWORD" -e "mqtt_password=$MQTT_PASSWORD"
+      # open session to Bitwarden!
+      # ./bin/deploy2hab2hab

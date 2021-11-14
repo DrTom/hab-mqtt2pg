@@ -2,11 +2,21 @@
 set -eux
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+EXECUTABLE=mqtt2pg
 
 cd $PROJECT_DIR
 
-touch mqtt2pg
-chmod a+x mqtt2pg
-npx shadow-cljs watch service
+function clean() {
+  rm -rf target
+  rm -rf .shadow-cljs
+  rm -rf node_modules
+}
+
+clean
+rm -f $EXECUTABLE
+touch $EXECUTABLE
+chmod a+x $EXECUTABLE
+npm i
+npx shadow-cljs watch $EXECUTABLE
 
 # vim: syntax=sh

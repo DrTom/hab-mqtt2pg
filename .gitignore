@@ -13,7 +13,7 @@
 /checkouts
 /src/gen
 /target
-mqtt2pg
+/mqtt2pg
 node_modules/
 pom.xml
 pom.xml.asc

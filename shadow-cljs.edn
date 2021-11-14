@@ -2,15 +2,14 @@
 {:source-paths
  ["src"]
  :dependencies
- [
+ [[applied-science/js-interop "0.3.1"]
+  [com.github.seancorfield/honeysql "2.1.818"]
   [com.taoensso/timbre "5.1.2"]
   [funcool/cuerdas "2021.05.29-0"]
   [org.clojars.akiel/async-error "0.3"]
-  [org.clojure/tools.cli "1.0.206"]
-  ]
-
+  [org.clojure/tools.cli "1.0.206"]]
  :builds
- {:service
+ {:mqtt2pg
   {:compiler-options
    {:infer-externs :auto
     :optimizations :simple}

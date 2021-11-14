@@ -2,9 +2,8 @@
 
 {
  ; min-level oder matters: it is greedy!
- :min-level [[#{"mqtt2pg.mqtt"
-                "mqtt2pg.message-handlers.generic-state"
-                "mqtt2pg.message-handlers.hue"
+ :min-level [[#{"mqtt2pg.message-handlers.shelly"
+                "mqtt2pg.insert"
                 } :debug]
              [#{"mqtt2pg.*"} :info]
              [#{"*"} :warn]]
